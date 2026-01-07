@@ -41,9 +41,10 @@ app.post('/analyze', async (req, res) => {
         
         IMPORTANT: 
         1. You MUST return the EXACT text of the link from the 'Available Links' list. Do NOT paraphrase or invent link names.
-        2. If multiple links seem relevant, choose the most specific one.
-        3. If no link is relevant, return null for "relevant_link_text".
-        4. USE THE 'category' FIELD. If provided, your explanation MUST explicitly state the navigation path, e.g., "Go to '[Category]' followed by '[Link Text]'." to help the user find it.
+        2. CROSS-LANGUAGE MATCHING: The user query might be in a different language (e.g., English) than the website links (e.g., Hindi, Tamil, Spanish). You MUST conceptually translate and match. Example: Query "Login" matches link "लॉगिन" or "تسجيل الدخول".
+        3. If multiple links seem relevant, choose the most specific one.
+        4. If no link is relevant, return null for "relevant_link_text".
+        5. USE THE 'category' FIELD. If provided, your explanation MUST explicitly state the navigation path.
         
         Output JSON ONLY:
         {

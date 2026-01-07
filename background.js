@@ -10,23 +10,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function handlePageAnalysis(request, sendResponse) {
-    const { query, links, pageTitle } = request;
+    const { query, links, pageTitle, mode } = request;
 
     // Get API Key
     const data = await chrome.storage.local.get(['gemini_api_key']);
     const apiKey = data.gemini_api_key;
 
-    if (!apiKey) {
-        sendResponse({
-            error: "No Gemini API Key found. Please set it in the extension popup.",
-            status: "missing_key"
-        });
-        return;
+    let targetUrl = "";
+    let useApiKey = null;
+    let serverName = "Server";
+
+    if (mode === 'cloud') {
+        if (!apiKey) {
+            sendResponse({
+                error: "No Gemini API Key found. To use Cloud Mode, please set an API Key in extension settings.",
+                status: "missing_key"
+            });
+            return;
+        }
+        targetUrl = "http://localhost:3000/analyze";
+        useApiKey = apiKey;
+        serverName = "Cloud Node.js Server";
+    } else {
+        // Local Mode
+        targetUrl = "http://localhost:5000/analyze";
+        useApiKey = "local-mode";
+        serverName = "Local Python Server";
     }
 
     try {
-        // Call Local Node.js Server
-        const response = await fetch("http://localhost:3000/analyze", {
+        console.log(`Sending request to ${mode} mode: ${targetUrl}`);
+        const response = await fetch(targetUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -35,7 +49,7 @@ async function handlePageAnalysis(request, sendResponse) {
                 query,
                 pageTitle,
                 links,
-                apiKey // Pass the key to the server
+                apiKey: useApiKey
             })
         });
 
