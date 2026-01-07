@@ -371,8 +371,8 @@ function makeDraggable(element, handle, clickCallback) {
             hasMoved = true;
         }
 
-        element.style.left = `${initialLeft + dx} px`;
-        element.style.top = `${initialTop + dy} px`;
+        element.style.left = `${initialLeft + dx}px`;
+        element.style.top = `${initialTop + dy}px`;
     }
 
     function onMouseUp(e) {

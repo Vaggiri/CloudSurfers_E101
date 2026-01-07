@@ -1,0 +1,41 @@
+[
+  { "query": "go to home", "link_text": "Home", "label": 1.0 },
+  { "query": "take me to homepage", "link_text": "Home", "label": 1.0 },
+  { "query": "open home page", "link_text": "Home", "label": 1.0 },
+  { "query": "back to home", "link_text": "Home", "label": 1.0 },
+  { "query": "return to main page", "link_text": "Home", "label": 1.0 },
+
+  { "query": "log out", "link_text": "Logout", "label": 1.0 },
+  { "query": "sign out of my account", "link_text": "Logout", "label": 1.0 },
+  { "query": "exit my account", "link_text": "Logout", "label": 1.0 },
+  { "query": "logout now", "link_text": "Logout", "label": 1.0 },
+  { "query": "end my session", "link_text": "Logout", "label": 1.0 },
+
+  { "query": "go to home", "link_text": "Logout", "label": 0.0 },
+  { "query": "back to homepage", "link_text": "Logout", "label": 0.0 },
+  { "query": "open main page", "link_text": "Logout", "label": 0.0 },
+
+  { "query": "login to my account", "link_text": "Login", "label": 1.0 },
+  { "query": "sign in", "link_text": "Login", "label": 1.0 },
+  { "query": "access my account", "link_text": "Login", "label": 1.0 },
+
+  { "query": "login", "link_text": "Home", "label": 0.2 },
+
+  { "query": "open dashboard", "link_text": "Dashboard", "label": 1.0 },
+  { "query": "go to dashboard", "link_text": "Dashboard", "label": 1.0 },
+  { "query": "view my dashboard", "link_text": "Dashboard", "label": 1.0 },
+
+  { "query": "dashboard", "link_text": "Logout", "label": 0.0 },
+
+  { "query": "need help", "link_text": "Support", "label": 1.0 },
+  { "query": "customer support", "link_text": "Support", "label": 1.0 },
+  { "query": "help me", "link_text": "Support", "label": 1.0 },
+
+  { "query": "support", "link_text": "Logout", "label": 0.0 },
+
+  { "query": "view my profile", "link_text": "Profile", "label": 1.0 },
+  { "query": "open profile", "link_text": "Profile", "label": 1.0 },
+  { "query": "my account details", "link_text": "Profile", "label": 1.0 },
+
+  { "query": "profile", "link_text": "Logout", "label": 0.0 }
+]

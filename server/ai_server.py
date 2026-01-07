@@ -10,9 +10,18 @@ print("Loading AI Model... please wait.")
 try:
     # Load a multilingual model to handle cross-language navigation
     # e.g. English query -> Hindi link matching
-    print("Loading Multilingual AI Model... (First run may take time to download)")
-    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-    print("Model loaded successfully!")
+    print("Loading AI Model...")
+    
+    import os
+    model_path = 'paraphrase-multilingual-MiniLM-L12-v2'
+    if os.path.exists('./fine_tuned_model'):
+        print("Found fine-tuned model! Loading custom weights...")
+        model_path = './fine_tuned_model'
+    else:
+        print("Loading Base AI Model... (First run may take time to download)")
+
+    model = SentenceTransformer(model_path)
+    print(f"Model loaded successfully from {model_path}!")
 except Exception as e:
     print(f"Error loading model: {e}")
     sys.exit(1)
