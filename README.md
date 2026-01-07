@@ -1,66 +1,87 @@
-# AI Navigation Assistant 🤖
+# AI Website Navigation Assistant
 
-A powerful Chrome Extension that helps users navigate complex websites using AI. It features a "Dual Mode" system, allowing users to switch between a cloud-based Gemini model and a local, privacy-focused Python model.
+This is an AI-powered Chrome Extension that helps users navigate complex websites. It acts as a smart sidecar, allowing users to ask "Where is X?" or "How do I do Y?" and getting direct navigation assistance.
 
-## ✨ Features
+It features a dual-mode AI backend:
+1.  **Cloud Mode**: Uses Google Gemini (via Node.js) for high-intelligence reasoning and general queries.
+2.  **Local Mode**: Uses a locally hosted `SentenceTransformer` model (via Python) for offline, privacy-focused, and fast semantic link matching.
 
-*   **Dual Mode AI**:
-    *   **Cloud Mode (☁️)**: Uses Google Gemini API for high-reasoning tasks.
-    *   **Local Mode (🏠)**: Uses a local Python server with `SentenceTransformers` for privacy and offline capability.
-*   **Multilingual Support**: Understands navigation queries in English even on non-English (Hindi, Tamil, etc.) websites.
-*   **Voice Input**: Speak your commands using the built-in microphone 🎤.
-*   **Draggable UI**: A glassmorphism-styled chat window that floats on top of any webpage.
-*   **Smart Highlighting**: Visually highlights the target element before clicking.
+## ✨ Key Features
 
-## 🛠️ Installation
+-   **Dual AI Modes**: Toggle between Cloud (Gemini) and Local (Python) AI.
+-   **Voice Commands**: Click the microphone to speak your query.
+-   **Smart Shortcuts**:
+    -   `Shift + F`: Toggle the chat window (won't trigger while typing).
+    -   `Escape`: Close/Hide the chat window.
+    -   `bot exit`: Type this command to close the chat.
+-   **Link Highlighting**: The assistant highlights the relevant link on the page before clicking it.
+-   **Local Model Fine-Tuning**: Train the local AI on your own custom data for better accuracy on specific sites.
 
-### 1. Clone/Download
-Clone this repository to your local machine.
+## 🛠️ Installation & Setup
 
-### 2. Backend Setup
-The extension relies on two servers. Run the one corresponding to your desired mode (or both).
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd Hackathon-Hacktide
+```
 
-#### Option A: Cloud Server (Node.js)
-Required for Cloud Mode.
-1.  Navigate to `server/`.
-2.  Install dependencies:
-    ```bash
-    npm install express cors body-parser dotenv @google/generative-ai
+### 2. Chrome Extension
+1.  Open Chrome and navigate to `chrome://extensions`.
+2.  Enable **Developer Mode** (top right).
+3.  Click **Load unpacked** and select the `Hackathon-Hacktide` folder.
+
+### 3. Backend Servers
+You need to run **both** servers for full functionality.
+
+**Node.js Server (Cloud Mode)**
+```bash
+cd server
+npm install
+# Create a .env file with GEMINI_API_KEY=your_key
+node server.js
+```
+*Runs on port 3000.*
+
+**Python Server (Local Mode)**
+```bash
+cd server
+pip install flask flask-cors sentence-transformers
+python ai_server.py
+```
+*Runs on port 5000.*
+
+## 🧠 Local Model Training
+
+You can fine-tune the local AI model to understand specific jargon or website mappings.
+
+1.  **Edit Data**: Open `server/training_data.json` and add your examples:
+    ```json
+    {
+      "query": "Where can I see my grades?",
+      "positive": "Academic Reports",
+      "negative": "Hostel Fee"
+    }
     ```
-3.  Run the server:
+2.  **Train**: Run the training script.
     ```bash
-    node server.js
+    cd server
+    python train.py
     ```
-    *Runs on Port 3000.*
+3.  **Restart**: Restart `ai_server.py` to load the new model.
 
-#### Option B: Local Server (Python)
-Required for Local Mode.
-1.  Navigate to `server/`.
-2.  Install dependencies:
-    ```bash
-    pip install flask flask-cors sentence-transformers
-    ```
-3.  Run the server:
-    ```bash
-    python ai_server.py
-    ```
-    *Runs on Port 5000. Note: First run will download the AI model (~400MB).*
+## 📂 Project Structure
 
-### 3. Load Chrome Extension
-1.  Open Chrome and go to `chrome://extensions`.
-2.  Enable **Developer mode** (top right).
-3.  Click **Load unpacked**.
-4.  Select the root folder of this project (`Hackathon-Hacktide`).
+-   `manifest.json`: Chrome extension configuration.
+-   `content.js`: Main logic injected into webpages (UI, event listeners).
+-   `styles.css`: Styling for the chat interface.
+-   `server/`: Backend code.
+    -   `server.js`: Node.js server for Gemini API.
+    -   `ai_server.py`: Python server for local embeddings.
+    -   `train.py`: Script to fine-tune the local model.
 
-## 📖 Usage
+## 🚀 Usage
 
-1.  **Open the Assistant**: Click the floating 🤖 icon on any webpage.
-2.  **Select Mode**: Use the toggle switch at the top to choose **Cloud** or **Local**.
-3.  **Ask**: Type "Where can I login?" or click the Microphone 🎤 and say it.
-4.  **Navigate**: The assistant will analyze the page, find the relevant link, highlight it, and click it for you.
-
-## 🏗️ Architecture
-
-*   **Frontend**: Plain HTML/CSS/JS (Content Script) injected into pages. Uses `chrome.runtime` for communication.
-*   **Backend (Cloud)**: Node.js + Express. Proxies requests to Google Gemini.
-*   **Backend (Local)**: Python + Flask. Uses `paraphrase-multilingual-MiniLM-L12-v2` for semantic similarity matching.
+1.  Open any webpage.
+2.  Press `Shift + F` or click the 🤖 icon to open the assistant.
+3.  Type your question (e.g., "Login page", "Contact support").
+4.  The AI will find the best link, highlight it, and navigate for you.

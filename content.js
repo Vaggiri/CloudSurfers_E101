@@ -71,6 +71,28 @@ function createChatInterface() {
 
     // Setup Voice Input
     setupVoiceInput();
+
+    // Global Shortcut: Shift + F to toggle chat
+    document.addEventListener('keydown', (e) => {
+        // Ignore if user is typing in an input field (unless it's Escape)
+        const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
+
+        // Toggle on Shift + F (only if NOT typing)
+        if (e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+            if (!isInput) {
+                e.preventDefault(); // Prevent typing F if we handled it? Well, usually Shift+F types F. Better to preventDefault if we toggle.
+                toggleChat();
+            }
+        }
+
+        // Close on Escape (Always allow closing, even from input)
+        if (e.key === 'Escape') {
+            const windowEl = document.getElementById('ai-nav-window');
+            if (windowEl && !windowEl.classList.contains('hidden')) {
+                toggleChat();
+            }
+        }
+    });
 }
 
 function toggleChat() {
@@ -187,6 +209,20 @@ function handleUserMessage() {
     const messageText = input.value.trim();
     if (!messageText) return;
 
+    // Check for "bot exit" command
+    if (messageText.toLowerCase() === 'bot exit') {
+        const windowEl = document.getElementById('ai-nav-window');
+        const toggleEl = document.getElementById('ai-nav-toggle');
+
+        // Hide window, show icon (or maybe hide both? user said "close", suggesting closing the window)
+        // Usually "close" means toggle off the window.
+        if (!windowEl.classList.contains('hidden')) {
+            toggleChat();
+        }
+        input.value = '';
+        return;
+    }
+
     addMessage(messageText, 'user');
     input.value = '';
 
@@ -243,6 +279,12 @@ function handleUserMessage() {
                         target.element.click();
                     }, 2000);
                 }
+            } else if (aiRes.external_link) {
+                // Handle External Redirection
+                addMessage(`Redirecting to external service: ${aiRes.external_link}`, 'bot');
+                setTimeout(() => {
+                    window.location.href = aiRes.external_link;
+                }, 2000);
             }
         }
     });
