@@ -1,0 +1,130 @@
+/* Glassmorphism Theme for Content Overlay */
+
+#ai-nav-assistant-root {
+  font-family: 'Inter', sans-serif;
+  z-index: 99999;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+.ai-nav-chat-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s;
+}
+
+.ai-nav-chat-icon:hover {
+  transform: scale(1.1);
+}
+
+.ai-nav-chat-icon.hidden {
+  display: none;
+}
+
+.ai-nav-chat-window {
+  width: 350px;
+  height: 500px;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: opacity 0.3s;
+}
+
+.ai-nav-chat-window.hidden {
+  display: none;
+}
+
+.ai-nav-header {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-nav-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.ai-nav-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  font-size: 14px;
+}
+
+.message.bot {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ddd;
+  align-self: flex-start;
+}
+
+.message.user {
+  background: #3b82f6;
+  color: white;
+  align-self: flex-end;
+}
+
+.ai-nav-input-area {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#ai-nav-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  outline: none;
+}
+
+#ai-nav-send {
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 0 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#ai-nav-send:hover {
+  background: #2563eb;
+}
