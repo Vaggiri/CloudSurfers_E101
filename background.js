@@ -10,7 +10,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function handlePageAnalysis(request, sendResponse) {
-    const { query, links, pageTitle, mode } = request;
+    let { query, links, pageTitle, mode } = request;
+
+    // Fix: content.js sends links inside pageContent
+    if (!links && request.pageContent && request.pageContent.links) {
+        links = request.pageContent.links;
+    }
 
     // Get API Key
     const data = await chrome.storage.local.get(['gemini_api_key']);

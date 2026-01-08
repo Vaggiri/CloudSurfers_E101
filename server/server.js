@@ -37,21 +37,23 @@ app.post('/analyze', async (req, res) => {
         Page Title: "${pageTitle}"
         Available Links: ${JSON.stringify(links.map(l => ({ text: l.text, category: l.category || "General" })).slice(0, 100))}
   
-        Goal: Identify the most relevant link for the user's query.
+        Goal: Identify the most relevant link for the user's query OR determine if the user wants to perform a search.
         
         IMPORTANT: 
         1. You MUST return the EXACT text of the link from the 'Available Links' list. Do NOT paraphrase or invent link names.
-        2. CROSS-LANGUAGE MATCHING: The user query might be in a different language (e.g., English) than the website links (e.g., Hindi, Tamil, Spanish). You MUST conceptually translate and match. Example: Query "Login" matches link "लॉगिन" or "تسجيل الدخول".
-        3. If multiple links seem relevant, choose the most specific one.
-        4. If no link is relevant, return null for "relevant_link_text".
-        5. USE THE 'category' FIELD. If provided, your explanation MUST explicitly state the navigation path.
+        2. CROSS-LANGUAGE MATCHING: The user query might be in a different language matches link.
+        3. SEARCH INTENT: If the user wants to "buy", "search for", "find" a product (e.g., "buy toy car", "search for iphone"), and there is no direct link to that specific product category, you should return a "search_query".
+        4. If a search query is generated, "relevant_link_text" should be null unless there is a very specific category link that is better.
+        5. If multiple links seem relevant, choose the most specific one.
         
         Output JSON ONLY:
         {
           "relevant_link_text": "Exact text of the link (or null)",
-          "explanation": "Brief explanation including navigation steps if needed",
+          "search_query": "The product or term to search for (or null)",
+          "explanation": "Brief explanation",
           "direct_match": true/false
         }
+      
       `;
 
         const result = await model.generateContent(prompt);
@@ -72,8 +74,17 @@ app.post('/analyze', async (req, res) => {
 
     } catch (error) {
         console.error("Server Error:", error);
-        res.status(500).json({
-            error: error.message || "Internal Server Error",
+
+        let status = 500;
+        let errorMessage = error.message || "Internal Server Error";
+
+        if (errorMessage.includes("429") || errorMessage.includes("Quota")) {
+            status = 429;
+            errorMessage = "Gemini API Quota Exceeded";
+        }
+
+        res.status(status).json({
+            error: errorMessage,
             details: error.toString()
         });
     }

@@ -1,6 +1,6 @@
 // Content script to inject chat interface and handle interactions
 
-console.log("AI Navigation Assistant Content Script Loaded");
+console.log("AI Universal Web Agent Content Script Loaded");
 
 // Create Chat Interface
 function createChatInterface() {
@@ -12,7 +12,7 @@ function createChatInterface() {
     </div>
     <div class="ai-nav-chat-window hidden" id="ai-nav-window">
       <div class="ai-nav-header">
-        <span>AI Nav Assistant</span>
+        <span>AI Web Agent</span>
         <button id="ai-nav-close">×</button>
       </div>
       <div class="ai-nav-mode-toggle">
@@ -23,10 +23,10 @@ function createChatInterface() {
          </label>
       </div>
       <div class="ai-nav-messages" id="ai-nav-messages">
-        <div class="message bot">Hello! I'm your navigation assistant. Ask me anything about this page.</div>
+        <div class="message bot">Hello! I'm your universal web agent. I can answer questions, search, or perform actions on this page.</div>
       </div>
       <div class="ai-nav-input-area">
-        <input type="text" id="ai-nav-input" placeholder="Where do you want to go?">
+        <input type="text" id="ai-nav-input" placeholder="Ask me anything...">
         <button id="ai-nav-mic" title="Voice Command">🎤</button>
         <button id="ai-nav-send">➤</button>
       </div>
@@ -38,7 +38,6 @@ function createChatInterface() {
     chrome.storage.local.get(['ai_mode'], (result) => {
         const mode = result.ai_mode || 'cloud';
         const checkbox = document.getElementById('ai-nav-mode-checkbox');
-
         if (checkbox) checkbox.checked = (mode === 'cloud');
         updateModeLabel(mode);
     });
@@ -56,12 +55,12 @@ function createChatInterface() {
         updateModeLabel(mode);
     });
 
-    // Make draggable with click handling for toggle
+    // Make draggable
     makeDraggable(rootEl, toggleEl, toggleChat);
     makeDraggable(rootEl, headerEl);
 
     document.getElementById('ai-nav-close').addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent drag start on close button
+        e.stopPropagation();
         toggleChat();
     });
     document.getElementById('ai-nav-send').addEventListener('click', handleUserMessage);
@@ -72,20 +71,15 @@ function createChatInterface() {
     // Setup Voice Input
     setupVoiceInput();
 
-    // Global Shortcut: Shift + F to toggle chat
+    // Global Shortcut: Shift + F
     document.addEventListener('keydown', (e) => {
-        // Ignore if user is typing in an input field (unless it's Escape)
         const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
-
-        // Toggle on Shift + F (only if NOT typing)
         if (e.shiftKey && (e.key === 'F' || e.key === 'f')) {
             if (!isInput) {
-                e.preventDefault(); // Prevent typing F if we handled it? Well, usually Shift+F types F. Better to preventDefault if we toggle.
+                e.preventDefault();
                 toggleChat();
             }
         }
-
-        // Close on Escape (Always allow closing, even from input)
         if (e.key === 'Escape') {
             const windowEl = document.getElementById('ai-nav-window');
             if (windowEl && !windowEl.classList.contains('hidden')) {
@@ -105,32 +99,17 @@ function toggleChat() {
     toggle.classList.toggle('hidden');
 
     if (isOpening) {
-        // Force layout update to check new dimensions
         const rect = root.getBoundingClientRect();
-
-        // Only adjust if we are in "manual positioning" mode (style.top is set via drag)
         if (root.style.top) {
             const viewportW = window.innerWidth;
             const viewportH = window.innerHeight;
             const margin = 20;
-
             let newLeft = rect.left;
             let newTop = rect.top;
             let needsUpdate = false;
 
-            // Check Right Edge
-            if (rect.right > viewportW - margin) {
-                newLeft = viewportW - rect.width - margin;
-                needsUpdate = true;
-            }
-
-            // Check Bottom Edge
-            if (rect.bottom > viewportH - margin) {
-                newTop = viewportH - rect.height - margin;
-                needsUpdate = true;
-            }
-
-            // Check Left/Top Edges
+            if (rect.right > viewportW - margin) { newLeft = viewportW - rect.width - margin; needsUpdate = true; }
+            if (rect.bottom > viewportH - margin) { newTop = viewportH - rect.height - margin; needsUpdate = true; }
             if (newLeft < margin) { newLeft = margin; needsUpdate = true; }
             if (newTop < margin) { newTop = margin; needsUpdate = true; }
 
@@ -146,62 +125,44 @@ function setupVoiceInput() {
     const micBtn = document.getElementById('ai-nav-mic');
     const input = document.getElementById('ai-nav-input');
 
-    // Check support
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        micBtn.style.display = 'none'; // Hide if not supported
+        micBtn.style.display = 'none';
         return;
     }
-
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'en-US'; // Default to English
+    recognition.lang = 'en-US';
 
     let isListening = false;
-
     micBtn.addEventListener('click', () => {
-        if (isListening) {
-            recognition.stop();
-        } else {
-            recognition.start();
-        }
+        if (isListening) recognition.stop();
+        else recognition.start();
     });
-
     recognition.onstart = () => {
         isListening = true;
         micBtn.classList.add('listening');
         input.placeholder = "Listening...";
     };
-
     recognition.onend = () => {
         isListening = false;
         micBtn.classList.remove('listening');
-        input.placeholder = "Where do you want to go?";
+        input.placeholder = "Ask me anything...";
     };
-
     recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        input.value = transcript;
+        input.value = event.results[0][0].transcript;
     };
-
-    recognition.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
+    recognition.onerror = (ev) => {
         isListening = false;
         micBtn.classList.remove('listening');
         input.placeholder = "Error. Try again.";
     };
 }
 
-// Helper to update visual label
 function updateModeLabel(mode) {
     const label = document.getElementById('ai-nav-mode-text');
-    if (mode === 'cloud') {
-        label.textContent = 'Mode: Cloud ☁️';
-    } else {
-        label.textContent = 'Mode: Local 🏠';
-    }
+    label.textContent = (mode === 'cloud') ? 'Mode: Cloud ☁️' : 'Mode: Local 🏠';
 }
 
 function handleUserMessage() {
@@ -209,16 +170,8 @@ function handleUserMessage() {
     const messageText = input.value.trim();
     if (!messageText) return;
 
-    // Check for "bot exit" command
     if (messageText.toLowerCase() === 'bot exit') {
-        const windowEl = document.getElementById('ai-nav-window');
-        const toggleEl = document.getElementById('ai-nav-toggle');
-
-        // Hide window, show icon (or maybe hide both? user said "close", suggesting closing the window)
-        // Usually "close" means toggle off the window.
-        if (!windowEl.classList.contains('hidden')) {
-            toggleChat();
-        }
+        toggleChat();
         input.value = '';
         return;
     }
@@ -226,208 +179,268 @@ function handleUserMessage() {
     addMessage(messageText, 'user');
     input.value = '';
 
-    // Get current mode
     const isCloud = document.getElementById('ai-nav-mode-checkbox').checked;
     const mode = isCloud ? 'cloud' : 'local';
 
-    // Simulate AI processing
-    addMessage(`Analyzing page structure(${mode} mode)...`, 'bot');
+    addMessage(`Thinking (${mode} mode)...`, 'bot');
 
-    // Extract page links
-    const links = extractPageLinks();
-
-    // Send data to background for AI processing
-    // Limit the amount of data sent to avoid message size limits
-    const simplifiedLinks = links.map(l => ({ text: l.text, href: l.href })).slice(0, 200);
+    // EXCTRACT CONTEXT
+    const pageContent = extractPageContent();
 
     chrome.runtime.sendMessage({
         action: "analyze_page",
         query: messageText,
         pageTitle: document.title,
-        links: simplifiedLinks,
-        mode: mode // Send mode to background
+        pageContent: pageContent, // Sending full updated context
+        mode: mode
     }, (response) => {
         if (chrome.runtime.lastError) {
             console.warn("Runtime error:", chrome.runtime.lastError);
-            // Fallback to local if background is not ready or accessible
-            fallbackToLocalLogic(messageText, links);
+            fallbackToLocalLogic(messageText, pageContent.links);
             return;
         }
 
         if (response.error) {
             if (response.status === 'missing_key') {
-                addMessage("Please set your Gemini API Key in the extension settings.", 'bot');
+                addMessage("Please set your Gemini API Key.", 'bot');
+            } else if (response.error.includes("Quota") || response.error.includes("429")) {
+                addMessage("⚠️ Quota Exceeded. Switching to Local...", 'bot');
+                const checkbox = document.getElementById('ai-nav-mode-checkbox');
+                if (checkbox) checkbox.checked = false;
+                updateModeLabel('local');
+                chrome.storage.local.set({ ai_mode: 'local' });
+                fallbackToLocalLogic(messageText, pageContent.links);
             } else {
                 addMessage("Error: " + response.error, 'bot');
+                fallbackToLocalLogic(messageText, pageContent.links);
             }
-            fallbackToLocalLogic(messageText, links);
         } else if (response.result) {
-            const aiRes = response.result;
-            addMessage(aiRes.explanation, 'bot');
+            const res = response.result;
 
-            if (aiRes.relevant_link_text) {
-                // Search for exact match first, then fuzzy/includes
-                let target = links.find(l => l.text === aiRes.relevant_link_text);
+            // 1. Answer / Explanation
+            if (res.answer) addMessage(res.answer, 'bot');
+            else if (res.explanation) addMessage(res.explanation, 'bot');
+
+            // 2. Action Handling
+            if (res.action === 'search' || res.search_query) {
+                const q = res.search_query || messageText;
+                addMessage(`Searching for: "${q}"...`, 'bot');
+                performSearch(q);
+            } else if (res.action === 'navigate' || res.relevant_link_text) {
+                const linkText = res.relevant_link_text;
+                let target = pageContent.links.find(l => l.text === linkText);
+                if (!target) target = pageContent.links.find(l => l.text.includes(linkText));
+
+                if (target) {
+                    addMessage(`Navigating to: "${target.text}"...`, 'bot');
+                    highlightElement(target.element);
+                    setTimeout(() => target.element.click(), 1500);
+                } else if (res.external_link) {
+                    addMessage(`Redirecting to: ${res.external_link}`, 'bot');
+                    setTimeout(() => window.location.href = res.external_link, 1500);
+                }
+            } else if (res.action === 'click_element' && res.selector) {
+                // Try to find element to click
+                let target = null;
+                try {
+                    target = document.querySelector(res.selector);
+                } catch (e) { }
+
+                // Fallback: match by text in generic inputs/buttons if selector failed
                 if (!target) {
-                    target = links.find(l => l.text.includes(aiRes.relevant_link_text));
+                    const candidates = Array.from(document.querySelectorAll('button, a, [role="button"], input[type="submit"], input[type="button"]'));
+                    target = candidates.find(el => el.innerText.toLowerCase().includes(res.selector.toLowerCase()) || el.value.toLowerCase().includes(res.selector.toLowerCase()));
                 }
 
                 if (target) {
-                    addMessage(`Navigating to: "${target.text}" in 2 seconds...`, 'bot');
-                    highlightElement(target.element);
-                    setTimeout(() => {
-                        target.element.click();
-                    }, 2000);
+                    addMessage(`Clicking "${res.selector}"...`, 'bot');
+                    highlightElement(target);
+                    setTimeout(() => target.click(), 1000);
+                } else {
+                    addMessage(`Couldn't find element "${res.selector}" to click.`, 'bot');
                 }
-            } else if (aiRes.external_link) {
-                // Handle External Redirection
-                addMessage(`Redirecting to external service: ${aiRes.external_link}`, 'bot');
-                setTimeout(() => {
-                    window.location.href = aiRes.external_link;
-                }, 2000);
             }
         }
     });
 }
 
+function extractPageContent() {
+    // 1. Metadata
+    const title = document.title;
+    const description = document.querySelector('meta[name="description"]')?.content || "";
+
+    // 2. Headings & Main Text
+    // Get H1-H3
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3'))
+        .map(h => h.innerText.replace(/\s+/g, ' ').trim())
+        .filter(t => t.length > 0)
+        .slice(0, 15);
+
+    // Get significant paragraphs
+    const paragraphs = Array.from(document.querySelectorAll('p'))
+        .map(p => p.innerText.replace(/\s+/g, ' ').trim())
+        .filter(t => t.length > 60) // Only meaningful text
+        .slice(0, 8); // Limit context size
+
+    // 3. Forms
+    const forms = Array.from(document.querySelectorAll('form')).map((f, idx) => {
+        const inputs = Array.from(f.querySelectorAll('input:not([type="hidden"]), select, textarea, button')).map(el => {
+            let label = "";
+            if (el.labels && el.labels[0]) label = el.labels[0].innerText;
+            else if (el.placeholder) label = el.placeholder;
+            else if (el.name) label = el.name;
+            else if (el.innerText) label = el.innerText;
+
+            return `${el.tagName}:${el.type || ''}(${label})`;
+        });
+        return `Form ${idx}: [${inputs.join(', ')}]`;
+    });
+
+    // 4. Links (Keep logic but attach elements for later use)
+    const links = Array.from(document.querySelectorAll('a, button, [role="button"]')).map(el => ({
+        text: el.innerText.replace(/\s+/g, ' ').trim(),
+        href: el.href || null,
+        element: el
+    })).filter(l => l.text.length > 2).slice(0, 200);
+
+    return {
+        title,
+        description,
+        headings,
+        mainText: paragraphs,
+        forms: forms.slice(0, 3), // Only first 3 forms
+        links: links
+    };
+}
+
+function performSearch(query) {
+    // Robust Search Logic from previous fix
+    const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="search"], input[name="q"], input[name="k"], input[name="keyword"]'));
+    let bestInput = null, maxScore = -1;
+
+    inputs.forEach(input => {
+        let score = 0;
+        const placeholder = (input.placeholder || "").toLowerCase();
+        const name = (input.name || "").toLowerCase();
+        const ariaLabel = (input.getAttribute('aria-label') || "").toLowerCase();
+        if (input.type === 'search') score += 10;
+        if (name.includes('search') || name === 'q') score += 5;
+        if (ariaLabel.includes('search') || placeholder.includes('search')) score += 5;
+        if (input.offsetParent === null) score = -100;
+        if (score > maxScore) { maxScore = score; bestInput = input; }
+    });
+
+    if (bestInput) {
+        highlightElement(bestInput);
+        bestInput.focus();
+        bestInput.value = query;
+        ['input', 'change', 'keydown', 'keypress', 'keyup'].forEach(ev => bestInput.dispatchEvent(new Event(ev, { bubbles: true })));
+
+        // React Hack
+        try {
+            const desc = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value");
+            desc.set.call(bestInput, query);
+            bestInput.dispatchEvent(new Event('input', { bubbles: true }));
+        } catch (e) { }
+
+        setTimeout(() => {
+            // Trigger Enter
+            const kEvent = { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true, view: window };
+            bestInput.dispatchEvent(new KeyboardEvent('keydown', kEvent));
+            bestInput.dispatchEvent(new KeyboardEvent('keypress', kEvent));
+            bestInput.dispatchEvent(new KeyboardEvent('keyup', kEvent));
+
+            // Find Button
+            let parent = bestInput.parentElement;
+            let searchBtn = null;
+
+            // Sibling Check
+            const siblings = Array.from(bestInput.parentNode.children);
+            const siblingBtn = siblings.find(el => el !== bestInput && (el.tagName === 'BUTTON' || el.getAttribute('role') === 'button' || el.querySelector('svg') || (typeof el.className === 'string' && el.className.includes('search'))));
+            if (siblingBtn) searchBtn = siblingBtn;
+
+            let checks = 0;
+            while (!searchBtn && parent && checks < 3) {
+                const btn = parent.querySelector('button, [type="submit"], svg, [role="button"], [aria-label*="search"]');
+                if (btn && btn !== bestInput && !bestInput.contains(btn)) {
+                    const aria = (btn.getAttribute('aria-label') || "").toLowerCase();
+                    if (!aria.includes('close') && !aria.includes('clear')) {
+                        searchBtn = btn;
+                        break;
+                    }
+                }
+                parent = parent.parentElement; checks++;
+            }
+
+            if (searchBtn) searchBtn.click();
+            else if (bestInput.form) bestInput.form.requestSubmit ? bestInput.form.requestSubmit() : bestInput.form.submit();
+        }, 800);
+    } else {
+        addMessage("No search bar found.", 'bot');
+    }
+}
+
 function fallbackToLocalLogic(messageText, links) {
-    console.log("Using local fallback logic");
+    console.log("Local fallback...");
     setTimeout(() => {
-        const relevantLink = findRelevantLink(messageText, links);
-        if (relevantLink) {
-            addMessage(`(Offline Mode) I found a link: "${relevantLink.text}".`, 'bot');
-            highlightElement(relevantLink.element);
+        const lowerQ = messageText.toLowerCase();
+        const found = links.find(l => l.text.toLowerCase().includes(lowerQ));
+        if (found) {
+            addMessage(`(Offline) Found: "${found.text}"`, 'bot');
+            highlightElement(found.element);
         } else {
-            addMessage("(Offline Mode) I couldn't find a direct link matches your query.", 'bot');
+            addMessage("(Offline) No direct match.", 'bot');
         }
     }, 500);
-}
-
-function addMessage(text, sender) {
-    const messagesDiv = document.getElementById('ai-nav-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender} `;
-    messageDiv.textContent = text;
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function extractPageLinks() {
-    const links = Array.from(document.querySelectorAll('a, button, [role="button"]'));
-    return links.map(el => ({
-        text: el.innerText.trim(),
-        href: el.href || null,
-        category: getLinkContext(el),
-        element: el
-    })).filter(l => l.text.length > 0);
-}
-
-function getLinkContext(element) {
-    // Look up for closest parent section/menu item and get its title
-    let parent = element.parentElement;
-    let steps = 0;
-    while (parent && steps < 5) {
-        // Check for common container classes or tags
-        if (parent.classList.contains('menu-item') || parent.classList.contains('card') || parent.tagName === 'SECTION') {
-            // Find a header within this parent, but before the current element if possible
-            const header = parent.querySelector('span, h2, h3, h4, strong');
-            if (header && header.innerText) {
-                return header.innerText.trim();
-            }
-        }
-        parent = parent.parentElement;
-        steps++;
-    }
-    return null;
-}
-
-function findRelevantLink(query, links) {
-    const lowerQuery = query.toLowerCase();
-    return links.find(l => l.text.toLowerCase().includes(lowerQuery));
 }
 
 function highlightElement(element) {
     if (!element) return;
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const originalBorder = element.style.border;
-    const originalBoxShadow = element.style.boxShadow;
-
+    const originalShadow = element.style.boxShadow;
     element.style.border = '2px solid #ff0055';
     element.style.boxShadow = '0 0 10px #ff0055';
-
-    setTimeout(() => {
-        element.style.border = originalBorder;
-        element.style.boxShadow = originalBoxShadow;
-    }, 3000);
+    setTimeout(() => { element.style.border = originalBorder; element.style.boxShadow = originalShadow; }, 3000);
 }
 
-// Draggable Logic
 function makeDraggable(element, handle, clickCallback) {
-    let isDragging = false;
-    let startX, startY;
-    let initialLeft, initialTop;
-    let hasMoved = false;
-
+    let isDragging = false, startX, startY, initialLeft, initialTop, hasMoved = false;
     if (!handle) return;
-
     handle.addEventListener('mousedown', (e) => {
-        // Only left click
-        if (e.button !== 0) return;
-
-        // Don't start drag if clicking on a button inside the handle (like close button)
-        if (e.target.tagName === 'BUTTON') return;
-
-        isDragging = true;
-        hasMoved = false;
-        startX = e.clientX;
-        startY = e.clientY;
-
-        // Get current position
+        if (e.button !== 0 || e.target.tagName === 'BUTTON') return;
+        isDragging = true; hasMoved = false;
+        startX = e.clientX; startY = e.clientY;
         const rect = element.getBoundingClientRect();
-
-        // If the element was positioned with bottom/right, we need to convert to top/left for movement
-        // We set top/left explicitly and clear bottom/right to switch positioning mode
-        element.style.left = rect.left + 'px';
-        element.style.top = rect.top + 'px';
-        element.style.bottom = 'auto';
-        element.style.right = 'auto';
-
-        initialLeft = rect.left;
-        initialTop = rect.top;
-
-        // Prevent default behavior (text selection etc)
+        element.style.left = rect.left + 'px'; element.style.top = rect.top + 'px';
+        element.style.bottom = 'auto'; element.style.right = 'auto';
+        initialLeft = rect.left; initialTop = rect.top;
         e.preventDefault();
-
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
     });
-
     function onMouseMove(e) {
         if (!isDragging) return;
-
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-
-        // Threshold for "drag" vs "click"
-        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-            hasMoved = true;
-        }
-
-        element.style.left = `${initialLeft + dx}px`;
-        element.style.top = `${initialTop + dy}px`;
+        const dx = e.clientX - startX; const dy = e.clientY - startY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+        element.style.left = `${initialLeft + dx}px`; element.style.top = `${initialTop + dy}px`;
     }
-
     function onMouseUp(e) {
         if (!isDragging) return;
         isDragging = false;
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
-
-        if (!hasMoved && clickCallback) {
-            clickCallback();
-        }
+        if (!hasMoved && clickCallback) clickCallback();
     }
 }
 
-// Initialize
+function addMessage(text, sender) {
+    const messagesDiv = document.getElementById('ai-nav-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    messageDiv.textContent = text;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
 createChatInterface();

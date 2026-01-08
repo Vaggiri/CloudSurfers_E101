@@ -16,6 +16,8 @@ It features a dual-mode AI backend:
     -   `bot exit`: Type this command to close the chat.
 -   **Link Highlighting**: The assistant highlights the relevant link on the page before clicking it.
 -   **Local Model Fine-Tuning**: Train the local AI on your own custom data for better accuracy on specific sites.
+-   **Firewall (Privacy Shield)**: Automatically blocks third-party trackers (ads, analytics) like `doubleclick` and `google-analytics` while keeping banking/login sites safe.
+-   **Optimized Local Navigation**: Intelligent heuristics to instantly understand commands like "change password" or "edit settings" without wait times.
 
 ## 🛠️ Installation & Setup
 

@@ -1,0 +1,81 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "google-analytics.com",
+            "resourceTypes": [
+                "script",
+                "xmlhttprequest",
+                "image",
+                "other"
+            ],
+            "domainType": "thirdParty"
+        }
+    },
+    {
+        "id": 2,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "doubleclick.net",
+            "resourceTypes": [
+                "script",
+                "xmlhttprequest",
+                "image",
+                "sub_frame"
+            ],
+            "domainType": "thirdParty"
+        }
+    },
+    {
+        "id": 3,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "facebook.net/en_US/fbevents.js",
+            "resourceTypes": [
+                "script"
+            ],
+            "domainType": "thirdParty"
+        }
+    },
+    {
+        "id": 4,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "googletagmanager.com",
+            "resourceTypes": [
+                "script",
+                "xmlhttprequest"
+            ],
+            "domainType": "thirdParty"
+        }
+    },
+    {
+        "id": 5,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "hotjar.com",
+            "resourceTypes": [
+                "script",
+                "xmlhttprequest",
+                "image"
+            ],
+            "domainType": "thirdParty"
+        }
+    }
+]
